@@ -1,0 +1,228 @@
+$base: #1e1e2e;
+$mantle: #181825;
+$crust: #11111b;
+
+$text: #cdd6f4;
+$subtext0: #a6adc8;
+$subtext1: #bac2de;
+
+$surface0: #313244;
+$surface1: #45475a;
+$surface2: #585b70;
+
+$overlay0: #6c7086;
+$overlay1: #7f849c;
+$overlay2: #9399b2;
+
+$blue: #89b4fa;
+$lavender: #b4befe;
+$sapphire: #74c7ec;
+$sky: #89dceb;
+$teal: #94e2d5;
+$green: #a6e3a1;
+$yellow: #f9e2af;
+$peach: #fab387;
+$maroon: #eba0ac;
+$red: #f38ba8;
+$mauve: #cba6f7;
+$pink: #f5c2e7;
+$flamingo: #f2cdcd;
+$rosewater: #f5e0dc;
+
+.home {
+  // background: $crust;
+  // background: transparent;
+}
+
+.time, .system {
+  // background: $crust;
+  // border: 3px solid $flamingo;
+}
+
+.header {
+  background: $red;
+  font-size: 1.5rem;
+  min-height: 50px;
+}
+
+.user {
+  &-avatar {
+    border-radius: 100px;
+    margin: 50px 0 75px;
+  }
+  &-name {
+    font-size: 4rem;
+  }
+  &-pseudo {
+    font-size: 2rem;
+    color: $sky;
+  }
+}
+
+.time-label {
+  font-size: 7rem;
+  font-family: "Seven Segment";
+  color: $green;
+}
+
+.system image {
+  margin: 0 16px;
+}
+
+.system progressbar {
+  min-width: 400px;
+
+  &.system-cpu progress {
+    background: $red;
+  }
+  &.system-mem progress {
+    background: $green;
+  }
+  &.system-disk progress {
+    background: $blue;
+  }
+  &.system-bat progress {
+    background: $pink;
+  }
+
+  trough {
+    background: $surface0;
+    min-height: 30px;
+
+    progress {
+      min-height: 30px;
+    }
+  }
+}
+
+.apps {
+  background: transparent;
+
+  &-box {
+    &-1 {
+      background: $base;
+    }
+    &-2 {
+      background: $base;
+    }
+    &-3 {
+      background: $base;
+      border-bottom-right-radius: 10px;
+    }
+    &-4 {
+      background: $base;
+    }
+    &-5 {
+      background: $base;
+      border-bottom-right-radius: 10px;
+    }
+    &-6 {
+      background: $base;
+      > * {
+        border-top-left-radius: 15px;
+        background: $crust;
+        // background: $green;
+      }
+    }
+  }
+}
+
+.search {
+  border-radius: 10px;
+}
+
+.music {
+  > * {
+    padding: 10px;
+  }
+  image {
+    background: $surface0;
+    margin-right: 10px;
+  }
+  &-title {
+    font-size: 2rem;
+  }
+  &-artist {
+    font-size: 1.5rem;
+  }
+  &-album {
+    font-size: 1.5rem;
+  }
+
+  &-controls {
+    margin-bottom: 65px;
+  }
+
+  &-play {
+    background: $green;
+    color: $base;
+    border-radius: 100%;
+    margin: 0 10px;
+  }
+
+  &-prev, &-next {
+    background: transparent;
+    color: $peach;
+    border-radius: 100%;
+  }
+
+  &-progress {
+    background: $pink;
+    min-height: 20px;
+    border-radius: 10px;
+  }
+}
+
+.agenda {
+  &-date {
+    font-size: 2rem;
+    color: $green;
+  }
+  &-day {
+    margin-top: 1rem;
+  }
+  &-events {
+    margin-left: 1rem;
+  }
+  &-matiere {
+    font-size: 1.3rem;
+    color: $blue;
+  }
+  &-event {
+    margin-left: 1rem;
+  }
+}
+
+.controls {
+  scale {
+    min-width: 400px;
+
+    trough {
+      border-radius: 5px;
+      min-height: 30px;
+
+      slider {
+        min-width: 30px;
+        min-height: 30px;
+      }
+
+      highlight {
+        border-radius: 5px;
+      }
+    }
+
+    &.control-volume {
+      // margin-top: 50px;
+      highlight {
+        background: $peach;
+      }
+    }
+
+    &.control-backlight {
+      // margin-bottom: 50px;
+      highlight {
+        background: $yellow;
+      }
+    }
+  }
+}

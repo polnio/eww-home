@@ -1,0 +1,254 @@
+(deflisten BACKLIGHT "./scripts/backlight.sh")
+(deflisten VOLUME "./scripts/volume.sh")
+(deflisten MUSIC-ARTIST "playerctl --follow metadata artist")
+(deflisten MUSIC-ALBUM "playerctl --follow metadata album")
+(deflisten MUSIC-TITLE "playerctl --follow metadata title")
+(deflisten MUSIC-STATUS "playerctl --follow status")
+
+(defpoll AGENDA :interval "5min" "./scripts/agenda.sh")
+
+(defwindow home
+  :geometry (geometry
+    :x "0%"
+    :y "0%"
+    :width "100%"
+    :height "100%"
+    :anchor "top left")
+  :stacking "bg"
+  :wm-ignore true
+  ;; (box))
+  (image :path "/home/polnio/Images/wallpapers/catppuccin-cat.png" :image-width: 1920 :image-height 1080))
+  ;; (image :path "/home/polnio/Images/wallpapers/minecraft-world.jpg" :image-width: 1920 :image-height 1080))
+
+
+(defwindow user
+  :geometry (geometry
+    :x 10
+    :y 10
+    :width 480
+    :height 500)
+  :stacking "bg"
+  :wm-ignore true
+  (box :class "widget" :orientation "vertical" :space-evenly false
+    (image :path "./assets/myHead.svg" :image-width 200 :class "user-avatar")
+    (label :text "Po Co" :class "user-name")
+    (label :text "@polnio" :class "user-pseudo")))
+
+
+(defvar TIME-SHOW-SECONDS false)
+
+(defwindow time
+  :geometry (geometry
+    :x 10
+    :y 520
+    :width 480
+    :height 270)
+  :stacking "bg"
+  :wm-ignore true
+  (centerbox :orientation "vertical"
+    (label :text "")
+    (eventbox :onclick "${EWW_CMD} update TIME-SHOW-SECONDS=${TIME-SHOW-SECONDS ? "false" : "true"}" :cursor "pointer"
+      (label 
+        :text "${formattime(EWW_TIME, TIME-SHOW-SECONDS ? "%H:%M:%S" : "%H:%M")}"
+        :class "time-label"
+        :width 100
+        :height 100))
+    (label :text "${formattime(EWW_TIME, "%e %B %Y")}")))
+
+
+(defwindow system
+  :geometry (geometry
+    :x 10
+    :y 800
+    :width 480
+    :height 270)
+  :stacking "bg"
+  :wm-ignore true
+  (box :orientation "vertical" :space-evenly true
+    (system-progress :class "cpu" :value "${EWW_CPU.avg}")
+    (system-progress :class "mem" :value "${EWW_RAM.used_mem_perc}")
+    (system-progress :class "disk" :value "${EWW_DISK['/'].used_perc}")
+    (system-progress :class "bat" :value "${EWW_BATTERY.BAT0.capacity}")))
+
+(defwidget system-progress [class value]
+  (box :orientation "horizontal" :space-evenly false
+    (image :path "./assets/${class}.svg" :image-width 32 :image-height 32 :halign "start")
+    (progress :class "system-${class}" :value value :orientation "horizontal" :valign "center" :halign "end")))
+
+
+(defvar HOVERED-APP "")
+
+(defwindow apps
+  :geometry (geometry
+    :x 500
+    :y 10
+    :width 232
+    ;; :height 232)
+    :height 306)
+  :stacking "bg"
+  :wm-ignore true
+  (eventbox :onhoverlost '${EWW_CMD} update HOVERED-APP=""'
+    (box :orientation "vertical"
+      (box :orientation "horizontal" :class "apps-box-1"
+        (app :name "vivaldi-stable" :icon "vivaldi")
+        (app :name "firefox")
+        (app :name "discord"))
+      (box :orientation "horizontal" :class "apps-box-2"
+        (app :name "kitty" :icon "utilities-terminal")
+        (app :name "thunar" :icon "system-file-manager")
+        (app :name "kitty nvim" :icon "nvim"))
+      (box :orientation "horizontal" :class "apps-box-3"
+        (app :name "kdeconnect-app" :icon "kdeconnect")
+        (app :name "bitwarden")
+        (app :name "insomnia"))
+      (box :orientation "horizontal"
+        (app :name "multimc" :class "apps-box-4")
+        (app :name "minecraft-launcher" :icon "minecraft" :class "apps-box-5")
+        (box :class "apps-box-6"
+          (box))))))
+
+(defwidget app [name ?icon ?class]
+  (transform :scale-x {HOVERED-APP == name ? "120%" : "100%"} :scale-y {HOVERED-APP == name ? "120%" : "100%"}
+    (eventbox
+      :class {class}
+      :onhover '${EWW_CMD} update HOVERED-APP="${name}"'
+      :onclick "~/.local/bin/home_widgets close && ${name} &"
+      :cursor "pointer"
+      (image :path "/usr/share/icons/Papirus-Dark/64x64/apps/${icon != "" ? icon : name}.svg"))))
+      ;; (image :path "/usr/share/icons/Suru++-Asprómauros/apps/48/${icon != "" ? icon : name}.svg" :image-width 48 :image-height 48))))
+
+
+(defwindow search
+  :geometry (geometry
+    :x 663
+    :y 247
+    ;; :width 84
+    ;; :height 84)
+    :width 69
+    :height 69)
+  :stacking "bg"
+  :wm-ignore true
+  (eventbox :onclick "~/.local/bin/home_widgets close && rofi -modi drun,run -show drun &" :cursor "pointer"
+    (image :path "/usr/share/icons/Papirus-Dark/64x64/apps/preferences-system-search.svg"))
+    ;; (image :path "/usr/share/icons/Suru++-Asprómauros/apps/48/preferences-system-search.svg" :image-width 48 :image-height 48))
+)
+
+
+(defwindow controls
+  :geometry (geometry
+    :x 742
+    :y 10
+    :width 480
+    :height 232)
+  :stacking "bg"
+  :wm-ignore true
+  (box :orientation "vertical" :space-evenly true
+    (control :class "volume" :value "${VOLUME}" :onchange "pactl set-sink-volume @DEFAULT_SINK@ {}%")
+    (control :class "backlight" :value "${BACKLIGHT}" :onchange "brightnessctl set {}%")))
+
+(defwidget control [class value onchange]
+  (scale
+    :class "control-${class}"
+    :value value
+    :orientation "horizontal"
+    :min 0
+    :max 101
+    :onchange onchange
+    :valign "center"
+    :halign "center"))
+
+(defwindow music
+  :geometry (geometry
+    :x 500
+    :y 520
+    :width 480
+    :height 270)
+  :stacking "bg"
+  :wm-ignore true
+  (box :orientation "horizontal" :space-evenly false
+    (overlay :width 250 :height 250 :halign "center"
+      (image :path "./assets/music/noArt.svg" :image-width 250 :image-height 250)
+      (box :halign "center" :valign "end"))
+    (box :orientation "vertical" :space-evenly false :width 200
+      (box :orientation "vertical" :space-evenly false :height 130
+        ;; (label :class "music-title" :text "Titre")
+        ;; (label :class "music-artist" :text "Artiste")
+        ;; (label :class "music-album" :text "Album"))
+        (label :class "music-title" :text MUSIC-TITLE :limit-width 10)
+        (label :class "music-artist" :text MUSIC-TITLE :limit-width 15)
+        (label :class "music-album" :text MUSIC-ALBUM :limit-width 15))
+      (box :orientation "horizontal" :space-evenly false :halign "center" :class "music-controls"
+        (button :class "music-prev" "󰒮")
+        (button :class "music-play" :onclick "playerctl play-pause" {MUSIC-STATUS == "Playing" ? "" : ""})
+        (button :class "music-next" "󰒭"))
+      (progress :class "music-progress" :value 0 :max 100))))
+
+(defwindow agenda
+  :geometry (geometry
+    :x 500
+    :y 800
+    :width 480
+    :height 270)
+  :stacking "bg"
+  :wm-ignore true
+  (scroll :hscroll false :vscroll true
+    (box :orientation "vertical" :space-evenly false
+      ;; (label :text "${AGENDA}")
+      ;; (label :text "${jq("${AGENDA}", 'group_by(.date)')}")
+      (for day_events in AGENDA
+        (box :orientation "horizontal" :space-evenly false :class "agenda-day"
+          (label :class "agenda-date" :text "${day_events[0][0].date}" :halign "start" :valign "start" :width 170)
+          (box :orientation "vertical" :space-evenly false
+            (for events in day_events
+              (box :class "agenda-events" :orientation "vertical" :space-evenly false
+                (label :class "agenda-matiere" :text "${events[0].matiere}" :halign "start")
+                  (box :class "agenda-event" :orientation "vertical" :space-evenly false
+                    (for event in events
+                      (label :text "- ${event.name}" :halign "start" :wrap true)))))))))))
+
+
+(defwindow shutdown
+  :geometry (geometry
+    :x 1732
+    :y 10
+    :width 84
+    :height 84)
+  :stacking "bg"
+  :wm-ignore true
+  (powermenu-button :icon "shutdown" :onclick "systemctl poweroff"))
+
+(defwindow reboot
+  :geometry (geometry
+    :x 1732
+    :y 104
+    :width 84
+    :height 84)
+  :stacking "bg"
+  :wm-ignore true
+  (powermenu-button :icon "restart" :onclick "systemctl reboot"))
+
+(defwindow suspend
+  :geometry (geometry
+    :x 1826
+    :y 10
+    :width 84
+    :height 84)
+  :stacking "bg"
+  :wm-ignore true
+  (powermenu-button :icon "suspend" :onclick "dm-tool lock"))
+
+(defwindow logout
+  :geometry (geometry
+    :x 1826
+    :y 104
+    :width 84
+    :height 84)
+  :stacking "bg"
+  :wm-ignore true
+  ;; (powermenu-button :icon "log-out" :onclick "i3-msg exit"))
+  (powermenu-button :icon "log-out" :onclick "herbstclient quit"))
+
+(defwidget powermenu-button [icon onclick]
+  (eventbox :onclick onclick :cursor "pointer"
+    (image :path "/usr/share/icons/Papirus-Dark/64x64/apps/system-${icon}.svg")))
+    ;; (image :path "/usr/share/icons/Suru++-Asprómauros/apps/48/system-${icon}.svg" :image-width 48 :image-height 48)))
